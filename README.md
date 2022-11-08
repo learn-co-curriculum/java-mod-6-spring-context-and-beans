@@ -2,70 +2,51 @@
 
 ## Learning Goals
 
-- Define Spring context and beans.
-- Create Spring context.
-- Add Beans to the Spring context.
+- Define Spring context.
+- Add beans to the application context.
+- Discuss the differences between a bean and a component.
 
 ## Introduction
 
-The application context in Spring is a memory space where all the objects that
-needs to be managed by the framework is added. Spring is not aware of objects
-unless it’s explicitly told to keep track of them. We can also define
-relationships between objects in the context.
+Now that we have a very simple working MVC, let's back up a bit and look
+at some more fundamentals of the Spring framework.
 
-Beans are object instances that are managed by Spring. We can add beans using in
-the context by using the `@Bean` annotation or stereotype annotations provided
-by Spring.
+In this lesson, we'll talk about what an application context is and how we can
+add objects to the Spring application context.
 
-## Create Maven Project
+## What is the Spring Context?
 
-We will be using Maven to add the Spring context dependency to our project.
+A fundamental element to the Spring framework is the **application context**. The
+context is a memory space in our application in which we can add objects to that
+need to be managed by the framework. Spring is not aware of objects unless it's
+explicitly told to keep track of them. We can also define relationships between
+objects in the context. This is an important concept to using Spring, because
+otherwise, we cannot turn our Java objects into something that Spring recognizes.
 
-1. Open IntelliJ and create a new project. Name the project
-   `spring-context-example`.
+So, how do we tell Spring to add our Java objects into the Spring application
+context?
 
-   ![IntelliJ create project screen](https://curriculum-content.s3.amazonaws.com/java-spring-1/create-project-spring-context.png)
-
-2. Add the `spring-context` dependency in the `pom.xml` file and reload the
-   project.
-
-   ```xml
-   <dependencies>
-       <dependency>
-           <groupId>org.springframework</groupId>
-           <artifactId>spring-context</artifactId>
-           <version>5.3.15</version>
-       </dependency>
-   </dependencies>
-   ```
-
-3. Create a `main` and `config` package in `src/main/java`. Your directory
-   structure should look like this:
-
-   ```
-   ├── pom.xml
-   └── src
-       ├── main
-       │   ├── java
-       │   │   ├── config
-       │   │   └── main
-       │   └── resources
-       └── test
-           └── java
-   ```
+This is where we will introduce the concept of a bean and a component.
 
 ## Add Bean using `@Bean` Annotation
+
+**Beans** are object instances that are managed by Spring. We can add beans into
+the context by using the `@Bean` annotation or stereotype annotations provided
+by Spring.
 
 The `@Bean` annotation is applied to methods. We will create a `Dog` class and
 add an instance of it to the Spring context.
 
 ![Spring context diagram with a single dog bean](https://curriculum-content.s3.amazonaws.com/java-spring-1/spring-context-dog.png)
 
-Let’s create the `Dog` class before we configuring Spring and adding the bean.
-Create the `Dog` class in the `main` and add the following code:
+Let’s create a `Dog` class before we configure Spring and add the bean to the
+application context.
+
+In a new Spring Boot project, we'll create a new package called `domain`. Then we
+will create the `Dog` class in the `domain` package with the following code:
 
 ```java
-package main;
+package com.example.demo.domain;
 
 public class Dog {
     private String name;
@@ -83,19 +64,21 @@ public class Dog {
 We will need to follow these steps for adding a bean to the context:
 
 1. Create a configuration class.
-2. Add a method with the `@Bean` annotation to the configuration class which
+2. Add a method with the `@Bean` annotation to the configuration class, which
    should return the object instance that needs to be added to the context.
-3. Initialize Spring context with the configuration class.
+3. Initialize the application context with the configuration class.
 
 ### Create Configuration Class
 
-A configuration class is defined in Spring using the `@Configuration`
-annotation. These classes are used to define Spring related configurations.
+A **configuration class** is defined in Spring using the `@Configuration`
+annotation. These classes are used to define Spring related configurations and
+indicate that a class declares one or more `@Bean` methods.
 
-Create a `MyConfig` class in the `config` package and the following code:
+To create a configuration class, we'll create a new package called `config`. Then
+we will create a `MyConfig` class in the `config` package with the following code:
 
 ```java
-package config;
+package com.example.demo.config;
 
 import org.springframework.context.annotation.Configuration;
 
@@ -115,9 +98,9 @@ these methods are used for representing the object instances Spring manages.
 Add a `dog()` method in the `MyConfig` class:
 
 ```java
-package config;
+package com.example.demo.config;
 
-import main.Dog;
+import com.example.demo.domain.Dog;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -140,28 +123,35 @@ context and store the returned value in its context.
 We will be using the `AnnotationConfigApplicationContext` class to create the
 Spring context instance since we are using annotations for configurations.
 
-Create a `Main` class in the `main` package and add the following code:
+In the default class, add the following code:
 
 ```java
-package main;
+package com.example.demo;
 
-import config.MyConfig;
+import com.example.demo.config.MyConfig;
+import com.example.demo.domain.Dog;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-public class Main {
+@SpringBootApplication
+public class DemoApplication {
     public static void main(String[] args) {
-				// create Spring context instance
+        SpringApplication.run(DemoApplication.class, args);
+        
+        // create Spring context instance
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MyConfig.class);
-				// access the bean
+        
+        // access the bean
         Dog luna = context.getBean(Dog.class);
         System.out.println(luna);
     }
 }
 ```
 
-We call the instantiate `AnnotationConfigApplicationContext` class with the
+We instantiate an `AnnotationConfigApplicationContext` instance with the
 `MyConfig` class. This causes Spring to initialize the `Dog` instance and add it
-to its context which makes it a bean (any object managed by Spring).
+to its context, which makes it a bean (any object managed by Spring).
 
 ![Spring context diagram with a single dog bean](https://curriculum-content.s3.amazonaws.com/java-spring-1/spring-context-dog.png)
 
@@ -172,68 +162,76 @@ specify the class of the instance we want to access.
 ## Add Beans Using Stereotype Annotation (@Component)
 
 Spring provides class-level annotations in the `org.springframework.stereotype`
-package for configuring applications. We will be using `@Component` annotation
-to add a bean to the Spring context. We need to follow these steps to add the
-beans using the `@Component` annotation:
+package for configuring applications. These are called **components**. We will be
+using the `@Component` annotation to add a bean to the Spring context. We need to
+follow these steps to add the beans using the `@Component` annotation:
 
 1. Annotate the class for which the instance needs to be added to the context.
-   In this case, we will annotate the `Dog` class.
+   In this case, we will annotate the `Dog` class definition.
 
-   ```java
-   package main;
+```java
+package com.example.demo.domain;
 
-   import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Component;
 
-   @Component
-   public class Dog {
-       private String name;
+@Component
+public class Dog {
+   private String name;
 
-       public String getName() {
-           return name;
-       }
-
-       public void setName(String name) {
-           this.name = name;
-       }
+   public String getName() {
+      return name;
    }
-   ```
 
-2. Use the `@ComponentScan` annotation over the configuration class and tell it
-   where to look for classes annotated with stereotype annotations.
+   public void setName(String name) {
+      this.name = name;
+   }
+}
+```
 
-   ```java
+2. To look for component classes, we can use the `@ComponentScan` annotation over
+   the configuration class to tell Spring where to look for classes annotated with
+   stereotype annotations. We'll pass in the `domain` package to tell Spring to
+   scan that as the base package.
+
+```java
    package config;
 
    import org.springframework.context.annotation.ComponentScan;
    import org.springframework.context.annotation.Configuration;
 
    @Configuration
-   @ComponentScan(basePackages = "main")
+   @ComponentScan(basePackages = "com.example.demo.domain")
    public class MyConfig {
-
+       
    }
-   ```
-
+```
 Spring will create the instance for us which means we can’t set the `name`
 property on the `Dog` instance during instantiation. Instead, we will get the
 `Dog` instance after Spring creates it and set the `name` property. Update the
 `Main` class code:
 
 ```java
-package main;
+package com.example.demo;
 
-import config.MyConfig;
+import com.example.demo.config.MyConfig;
+import com.example.demo.domain.Dog;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-public class Main {
-    public static void main(String[] args) {
-        // create context
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MyConfig.class);
-        // access bean
-        Dog luna = context.getBean(Dog.class);
-        luna.setName("Luna");
-        System.out.println(luna);
-    }
+@SpringBootApplication
+public class DemoApplication {
+   public static void main(String[] args) {
+      SpringApplication.run(DemoApplication.class, args);
+
+      // create Spring context instance
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(MyConfig.class);
+
+      // access the bean
+      Dog luna = context.getBean(Dog.class);
+      luna.setName("Luna");
+      System.out.println(luna);
+   }
 }
 ```
 
@@ -241,43 +239,36 @@ Running the `main` method will print out the `Dog` instance in the Spring
 context. The stereotype annotations are primarily used over the `@Bean`
 annotations since it is more simple.
 
-As mentioned earlier, the `org.springframework.stereotype` package has other
-annotations:
-
-- `@Service`: applied to classes used for business logic.
-- `@Controller`: applied to classes used in a web environment.
-- `@Repository`: applied to classes used for interacting with external data
-  storage.
+So far, we have been using the `@Service` and `@Controller` annotations, which
+are part of the `org.springframework.stereotype` package, and are applied to
+classes. Both of these annotations serve as a specialization of `@Component`,
+allowing for implementation classes to be autodetected through classpath scanning.
+This is how we were able to add them as beans to the application context in the
+previous lessons!
 
 ## `@Bean` vs `@Component`
 
 Now that we have used both of these annotations for adding beans let’s look at
 their differences:
 
-1. `@Bean` is a method-level annotation and `@Component` is a class-level
-   annotation.
-2. `@Bean` gives us full control over the instance that’s added to the context
-   since we have access to the instance in the method body. For the `@Component`
-   annotation, we only get access to the instance once Spring creates it.
-3. We can annotate multiple methods with the `@Bean` annotation and use them to
-   create multiple instances of the same class. The `@Component` annotation only
-   allows one instance of the annotated class.
-4. `@Bean` can be used to add any objects to the Spring context including
-   instances of classes that we did not create. For example, we can use the
-   following method to add a `String` to the context:
-
-   ```java
-   @Bean
-       public String cat() {
-           return "Cat";
-       }
-   ```
-
-   `@Component` annotation can only be used for classes defined in the
-   application.
+| `@Bean`                                                                                                            | `@Component`                                                                |
+|--------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| Method-level annotation                                                                                            | Class-level annotation                                                      |
+ | Full control over the instance that's added to the context since we have access to the instance in the method body | Only gets access to the instance once Spring creates it                     |
+ | Annotate multiple methods with the `@Bean` annotation and use them to create multiple instances of the same class  | The `@Component` annotation only allows one instance of the annotated class |
+ | Used to add any objects to the Spring context, including instances of classes that we did not create               | Used for classes defined in the application only                            |
 
 ## Conclusion
 
 We have learned about the Spring context which is a core part of the Spring
 framework. We also looked at how to use both the `@Bean` and `@Component`
 annotations to add beans to the context.
+
+## References
+
+- [Configuration Annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/Configuration.html)
+- [Bean Annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/Bean.html)
+- [Component Annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Component.html)
+- [ComponentScan Annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/ComponentScan.html)
+- [Service Annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Service.html)
+- [Controller Annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Controller.html)
