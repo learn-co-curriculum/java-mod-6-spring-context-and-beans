@@ -4,6 +4,7 @@
 
 - Define Spring context.
 - Add beans to the application context.
+- Elaborate on the `@SpringBootApplication` annotation.
 - Discuss the differences between a bean and a component.
 
 ## Introduction
@@ -205,10 +206,15 @@ public class Dog {
        
    }
 ```
+With the code above, we have now told Spring which classes to add to its context
+and where to find these classes through the `@ComponentScan` annotation. This in
+turn tells Spring to recognize our Java code!
+
 Spring will create the instance for us which means we can’t set the `name`
 property on the `Dog` instance during instantiation. Instead, we will get the
-`Dog` instance after Spring creates it and set the `name` property. Update the
-`Main` class code:
+`Dog` instance after Spring creates it and sets the `name` property. Update the
+`Main` class code to prove that Spring has created and added the bean in its
+context:
 
 ```java
 package com.example.demo;
@@ -246,6 +252,30 @@ allowing for implementation classes to be autodetected through classpath scannin
 This is how we were able to add them as beans to the application context in the
 previous lessons!
 
+But wait... where did we scan for the components and where was the configuration
+class?
+
+## The `@SpringBootApplication` annotation
+
+We've seen how the Spring Initializr creates a default application class with the
+`@SpringBootApplication` annotation. As we mentioned before, this is the main
+entry point to our Spring Boot API. But there's more to this annotation! The
+`@SpringBootApplication` is a single annotation combining three popular
+annotations:
+
+- `@EnableAutoConfiguration`: This annotation will enable Spring Boot's
+  auto-configuration mechanism. To read more about this annotation, please see
+  its documentation here: [Auto-configuration doc](https://docs.spring.io/spring-boot/docs/2.0.x/reference/html/using-boot-auto-configuration.html).
+- `@ComponentScan`: As we saw above, this annotation will scan the package where
+  the application is located for component classes (marked with `@Component`).
+- `@Configuration`: As we saw above, this annotation allows us to register beans
+  in the application context.
+
+If we look back at our spring-web-demo project, we can now connect the dots and
+see that the `SpringWebDemoApplication` class, annotated with
+`@SpringBootAnnotation`, was how we were able to add our controller and service
+classes to the spring context!
+
 ## `@Bean` vs `@Component`
 
 Now that we have used both of these annotations for adding beans let’s look at
@@ -272,3 +302,5 @@ annotations to add beans to the context.
 - [ComponentScan Annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/ComponentScan.html)
 - [Service Annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Service.html)
 - [Controller Annotation](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/stereotype/Controller.html)
+- [SpringBootApplication Annotation](https://docs.spring.io/spring-boot/docs/2.0.x/reference/html/using-boot-using-springbootapplication-annotation.html)
+- [Auto-configuration Documentation](https://docs.spring.io/spring-boot/docs/2.0.x/reference/html/using-boot-auto-configuration.html)
