@@ -242,8 +242,7 @@ public class DemoApplication {
 ```
 
 Running the `main` method will print out the `Dog` instance in the Spring
-context. The stereotype annotations are primarily used over the `@Bean`
-annotations since it is more simple.
+context.
 
 So far, we have been using the `@Service` and `@Controller` annotations, which
 are part of the `org.springframework.stereotype` package, and are applied to
@@ -268,6 +267,13 @@ annotations:
   its documentation here: [Auto-configuration doc](https://docs.spring.io/spring-boot/docs/2.0.x/reference/html/using-boot-auto-configuration.html).
 - `@ComponentScan`: As we saw above, this annotation will scan the package where
   the application is located for component classes (marked with `@Component`).
+  This means, the component classes need to be in the same base package as
+  specified in the `@ComponentScan` annotation. If no base package is specified,
+  the default base package is the package the `@ComponentScan` annotation is
+  defined in then.
+  - For example: If the main default class is in the package `com.example.demo`,
+    then we should put our `@Controller` class in a package named
+    `com.example.demo.controller` rather than `com.example.controller`.
 - `@Configuration`: As we saw above, this annotation allows us to register beans
   in the application context.
 
