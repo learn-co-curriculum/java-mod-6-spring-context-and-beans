@@ -206,6 +206,7 @@ public class Dog {
        
    }
 ```
+
 With the code above, we have now told Spring which classes to add to its context
 and where to find these classes through the `@ComponentScan` annotation. This in
 turn tells Spring to recognize our Java code!
@@ -290,9 +291,9 @@ their differences:
 | `@Bean`                                                                                                            | `@Component`                                                                |
 |--------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
 | Method-level annotation                                                                                            | Class-level annotation                                                      |
- | Full control over the instance that's added to the context since we have access to the instance in the method body | Only gets access to the instance once Spring creates it                     |
- | Annotate multiple methods with the `@Bean` annotation and use them to create multiple instances of the same class  | The `@Component` annotation only allows one instance of the annotated class |
- | Used to add any objects to the Spring context, including instances of classes that we did not create               | Used for classes defined in the application only                            |
+| Full control over the instance that's added to the context since we have access to the instance in the method body | Only gets access to the instance once Spring creates it                     |
+| Annotate multiple methods with the `@Bean` annotation and use them to create multiple instances of the same class  | The `@Component` annotation only allows one instance of the annotated class |
+| Used to add any objects to the Spring context, including instances of classes that we did not create               | Used for classes defined in the application only                            |
 
 ## Conclusion
 
